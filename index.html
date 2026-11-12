@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="KI-News: Nachrichten und Forschung über künstliche Intelligenz. Ein nichtkommerzielles WBS-Lernprojekt.">
+<title>KI-News | Künstliche Intelligenz verstehen</title>
+<style>
+:root{--bg:#f3f6fa;--ink:#16263b;--muted:#64758b;--line:#dce4ee;--accent:#2665cf}
+*{box-sizing:border-box}body{margin:0;font:16px/1.6 system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink)}
+.container{width:min(1100px,calc(100% - 40px));margin:auto}
+header{background:#12243f;color:#fff;padding:28px 0 90px}
+nav{display:flex;justify-content:space-between;align-items:center;gap:16px}nav strong{font-size:1.4rem}nav span{color:#a9bfdc;font-size:.85rem}
+.eyebrow{margin:65px 0 10px;text-transform:uppercase;color:#8cb8ff;font-size:.78rem;letter-spacing:.15em;font-weight:750}
+h1{font-size:clamp(2.1rem,5vw,4.2rem);line-height:1.1;letter-spacing:-.04em;max-width:730px;margin:0 0 24px}
+header p.intro{max-width:670px;color:#c9d7e9;font-size:1.1rem}
+main{margin-top:-44px;padding-bottom:80px}
+.toolbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;padding:21px 24px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 6px 22px #152b4810}
+.toolbar h2{margin:0;font-size:1.17rem}.toolbar p{margin:0;color:var(--muted);font-size:.9rem}
+.controls{display:flex;flex-wrap:wrap;gap:10px}input,select{border:1px solid #c5d1e0;background:#fff;border-radius:9px;padding:10px 12px;font:inherit;min-width:190px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:20px;margin-top:27px}
+.card{background:#fff;border:1px solid var(--line);border-radius:13px;padding:25px;display:flex;flex-direction:column;min-height:280px}
+.tag{font-size:.76rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#1d5db9}
+.card h3{font-size:1.33rem;line-height:1.3;margin:13px 0}.card p{color:var(--muted);margin:0 0 23px}
+.meta{font-size:.82rem;color:var(--muted);margin-top:auto;border-top:1px solid var(--line);padding-top:14px}
+.read{font-weight:700;color:#1959ae;margin-top:12px;text-underline-offset:4px}
+.empty{grid-column:1/-1;text-align:center;background:#fff;padding:50px 22px;border:1px dashed #bacadd;border-radius:13px}
+.empty h3{margin:0 0 10px}.empty p{max-width:620px;margin:auto;color:var(--muted)}
+.note{font-size:.88rem;color:var(--muted);margin-top:25px}
+footer{border-top:1px solid var(--line);font-size:.85rem;color:var(--muted);padding:26px 0}
+a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #84aeff;outline-offset:3px}
+@media(max-width:600px){nav{align-items:start;flex-direction:column}.eyebrow{margin-top:50px}.controls,input,select{width:100%}}
+</style>
+</head>
+<body>
+<header><div class="container"><nav><strong>KI-News</strong><span>WBS Coding School · Lernprojekt</span></nav>
+<div class="eyebrow">Künstliche Intelligenz · Nachrichten & Forschung</div>
+<h1>KI verstehen.<br>Entwicklungen verfolgen.</h1>
+<p class="intro">Ausgewählte Nachrichten aus sechs Quellen. Automatisch gesammelt, strukturiert und mit den Originalartikeln verlinkt.</p>
+</div></header>
+<main class="container">
+<section class="toolbar" aria-label="Nachrichten filtern">
+<div><h2>Aktuelle Beiträge</h2><p id="count" aria-live="polite">Nachrichten werden geladen …</p></div>
+<div class="controls"><input id="search" type="search" placeholder="Nachrichten suchen …" aria-label="Nachrichten durchsuchen"><select id="source" aria-label="Quelle auswählen"><option value="">Alle Quellen</option></select></div>
+</section>
+<section id="articles" class="cards" aria-live="polite"></section>
+<p class="note">KI-generierte Zusammenfassungen können Fehler enthalten. Bitte die verlinkten Originalquellen prüfen. arXiv-Preprints sind nicht automatisch begutachtet.</p>
+</main>
+<footer><div class="container">KI-News · Nichtkommerzielles Lernprojekt · Quellen bleiben bei ihren ursprünglichen Herausgebern.</div></footer>
+<script>
+const cards=document.querySelector('#articles'),count=document.querySelector('#count'),search=document.querySelector('#search'),source=document.querySelector('#source');
+let news=[];
+function urlOf(u){try{let x=new URL(u);return ['https:','http:'].includes(x.protocol)?x.href:null}catch{return null}}
+function show(){
+const q=search.value.trim().toLocaleLowerCase('de-DE'),s=source.value;
+const selected=news.filter(x=>(!s||x.source===s)&&(!q||[x.title,x.summary,x.category,x.source].join(' ').toLocaleLowerCase('de-DE').includes(q)));
+count.textContent=selected.length+' Beiträge';
+cards.replaceChildren();
+if(!selected.length){const e=document.createElement('div');e.className='empty';const h=document.createElement('h3');h.textContent=news.length?'Keine passenden Beiträge':'Noch keine Nachrichten veröffentlicht';const p=document.createElement('p');p.textContent=news.length?'Bitte den Suchbegriff oder die Quelle ändern.':'Das Blog-Design ist vorbereitet. Nach der Einrichtung von Make, Google Sheets und dem Veröffentlichungsprozess erscheinen hier die freigegebenen Nachrichten.';e.append(h,p);cards.append(e);return}
+for(const x of selected){const article=document.createElement('article');article.className='card';const tag=document.createElement('span');tag.className='tag';tag.textContent=x.category||'KI-News';const h=document.createElement('h3');h.textContent=x.title||'Ohne Titel';const p=document.createElement('p');p.textContent=x.summary||'';const meta=document.createElement('div');meta.className='meta';const d=x.date?new Date(x.date):null;meta.textContent=[x.source,d&&!Number.isNaN(d.getTime())?d.toLocaleDateString('de-DE'):x.date].filter(Boolean).join(' · ');article.append(tag,h,p,meta);const link=urlOf(x.url);if(link){const a=document.createElement('a');a.href=link;a.target='_blank';a.rel='noopener noreferrer';a.className='read';a.textContent='Originalartikel lesen';article.append(a)}cards.append(article)}
+}
+fetch('./data/news.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).then(x=>{if(!Array.isArray(x))throw Error('Format');news=x.filter(a=>a&&a.status==='Freigegeben').sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));for(const name of [...new Set(news.map(a=>a.source).filter(Boolean))].sort()){const option=document.createElement('option');option.value=name;option.textContent=name;source.append(option)}show()}).catch(()=>{count.textContent='Daten nicht verfügbar';cards.textContent='Die Nachrichtendaten konnten nicht geladen werden.'});
+search.addEventListener('input',show);source.addEventListener('change',show);
+</script></body></html>
